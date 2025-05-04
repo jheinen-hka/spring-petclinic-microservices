@@ -34,7 +34,7 @@ public class BillController {
                                            @RequestParam Long visitId,
                                            @RequestParam(required = false) String description) {
         Bill bill = billService.createBill(customerId, visitId, description);
-        return ResponseEntity.created(URI.create("/api/bills/" + bill.getId())).body(bill);
+        return ResponseEntity.created(URI.create("/bills/" + bill.getId())).body(bill);
     }
 
     @PutMapping("/{id}/status")
