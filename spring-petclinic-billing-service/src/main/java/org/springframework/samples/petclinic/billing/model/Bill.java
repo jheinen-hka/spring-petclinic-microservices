@@ -1,9 +1,6 @@
 package org.springframework.samples.petclinic.billing.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,16 +12,29 @@ public class Bill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "customer_id", nullable = false)
     private Long customerId;
+
+    @Column(name = "visit_id", nullable = false)
     private Long visitId;
 
+    @Column(name = "customer_name", nullable = false)
     private String customerName;
+
+    @Column(name = "visit_date")
     private LocalDate visitDate;
 
+    @Column(name = "amount")
     private BigDecimal amount;
+
+    @Column(name = "issue_date")
     private LocalDate issueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private BillStatus status;
 
+    @Column(name = "description")
     private String description;
 
     public Long getId() {
