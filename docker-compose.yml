@@ -109,9 +109,11 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=docker
     ports:
       - 8085:8085
-
 
   api-gateway:
     image: springcommunity/spring-petclinic-api-gateway
