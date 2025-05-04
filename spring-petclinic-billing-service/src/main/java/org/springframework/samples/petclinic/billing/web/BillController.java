@@ -4,13 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.samples.petclinic.billing.model.Bill;
 import org.springframework.samples.petclinic.billing.model.BillStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bills")
+@RequestMapping("/bills")
 public class BillController {
 
     private final BillService billService;
