@@ -32,11 +32,11 @@ public class BillController {
     }
 
     @PostMapping
-    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
-        bill.setIssueDate(LocalDate.now());
-        bill.setStatus(BillStatus.OPEN);
-        Bill saved = billService.save(bill);
-        return ResponseEntity.created(URI.create("/api/bills/" + saved.getId())).body(saved);
+    public ResponseEntity<Bill> createBill(@RequestParam Long customerId,
+                                           @RequestParam Long visitId,
+                                           @RequestParam(required = false) String description) {
+        Bill bill = billService.createBill(customerId, visitId, description);
+        return ResponseEntity.created(URI.create("/api/bills/" + bill.getId())).body(bill);
     }
 
     @PutMapping("/{id}/status")
