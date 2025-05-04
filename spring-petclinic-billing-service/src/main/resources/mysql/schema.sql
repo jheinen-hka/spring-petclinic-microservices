@@ -4,7 +4,7 @@ GRANT ALL PRIVILEGES ON petclinic.* TO 'pc'@'%';
 
 USE petclinic;
 
-CREATE TABLE IF NOT EXISTS bills (
+CREATE TABLE IF NOT EXISTS bill (
                                      id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     customer_id INT(11) NOT NULL,
     customer_name VARCHAR(100) NOT NULL,
