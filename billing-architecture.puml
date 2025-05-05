@@ -1,5 +1,6 @@
 @startuml
 title Billing Feature - Spring PetClinic Microservices Architecture
+skinparam dpi 300
 
 package "Frontend (Angular)" {
   [Bill List Component] as BillList
