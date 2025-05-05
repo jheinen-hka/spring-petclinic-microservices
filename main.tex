@@ -1,0 +1,191 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{hyperref, hyphenat}
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{appendix}
+\usepackage{placeins}
+\usepackage{float}
+
+\usepackage{listings}  % Zum Einbinden von Code
+\usepackage{xcolor}    % Für Farbdefinitionen
+
+\lstset{
+    basicstyle=\ttfamily\color{blue},
+    breaklines=true
+}
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+%	\includegraphics[width=0.15\textwidth]{example-image-1x1}\par\vspace{1cm}
+	{\scshape\LARGE Hochschule Karlsruhe \par}
+	\vspace{1cm}
+	{\scshape\Large Verteilte Systeme\par}
+	{\scshape\small INFM SS25\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Labor 1 - Analyse und Entwurf\par}
+	\vspace{2cm}
+	{\Large\itshape Bearbeitet von:\par}
+	{\Large\itshape Jakob Vogt - 78078\par}
+	{\Large\itshape Josiah Heinen - 61728\par}
+	\vfill
+	Betreuer\par
+	Prof. Dr. Christian Zirpins \\
+	M.Sc. Kevin Torner
+
+	\vfill
+
+% Bottom of the page
+	{\large \today\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Installation und Test}
+
+Für die Installation wurde über GitHub ein Fork des Repositories der PetClinic \cite{petclinic} erstellt und dieses lokal geklont. Nach Anleitung der README des Projektes konnten mit dem Befehl \lstinline|./mvnw clean install -P buildDocker| mit Hilfe von Docker einfach Images zu den Services generiert werden. Danach konnte das Projekt mit dem Befehl \lstinline|docker compose up| lokal gestartet werden. \\
+
+Abbildung \ref{fig:intellij} zeigt das lokal geklonte Repository in einer IntelliJ Entwicklungsumgebung. Dort wurde das Hauptmodul \textit{spring-petclinic-microservices} geöffnet, dessen README-Dokumetation auf der Abbildung auch geöffnet ist. Teil dieses Hauptmoduls sind die vielen Sub-Module, die in der Projektübersicht auf der linken Seite zu sehen sind.
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=0.99\textwidth,keepaspectratio]{abbildungen/intellij.png}}
+    \caption{PetClinic Projekt in IntelliJ}
+    \label{fig:intellij}
+\end{figure}
+
+In Abbildung \ref{fig:docker} ist die Anwendung Docker Desktop zu sehen. Docker Desktop gibt eine Übersicht über die laufenden Container der Anwendung und unter welchen Ports die Anwendungen erreichbar sind.  
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=0.99\textwidth,keepaspectratio]{abbildungen/docker.png}}
+    \caption{laufende Services in Docker Desktop}
+    \label{fig:docker}
+\end{figure}
+
+Wurde die Anwendung mit Docker gestartet, so ist sie unter \lstinline|http://localhost:8080| erreichbar. Abbildung \ref{fig:welcome} zeigt, wie die Willkommens-Seite der PetClinic-Anwendung aussieht, wenn alles funktioniert. 
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=0.7\textwidth,keepaspectratio]{abbildungen/welcome.png}}
+    \caption{Willkommens-Seite von PetClinic unter http://localhost:8080}
+    \label{fig:welcome}
+\end{figure}
+
+Die Abbildungen \ref{fig:owners} und \ref{fig:register} zeigen weitere verschiedene Features, die über die PetClinic-UI erreichbar sind und durch die laufenden Services in der Docker-Umgebung alle funktionieren und ausprobiert wurden. 
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=0.6\textwidth,keepaspectratio]{abbildungen/owners.png}}
+    \caption{Find Owners Feature der PetClinic}
+    \label{fig:owners}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=0.6\textwidth,keepaspectratio]{abbildungen/register.png}}
+    \caption{Register Owners Feature der PetClinic}
+    \label{fig:register}
+\end{figure}
+
+\newpage
+\section{Analyse von Struktur und Verhalten}
+
+Für die Strukturanalyse wurde der Microservice \textit{spring-petclinic-vets-service} ausgewählt und mittels eines UML-Klassendiagramms in Abbildung \ref{fig:class-diagram} visualisiert. Das Diagramm zeigt die zentrale Architektur des Services mit den Entitätsklassen \texttt{Vet} und \texttt{Specialty}, die in einer Many-zu-Many-Beziehung stehen. Der Zugriff auf die Daten erfolgt über das \texttt{VetRepository}-Interface, während die \texttt{VetResource}-Klasse als REST-Controller fungiert und unter dem Pfad \texttt{/vets} erreichbar ist. Es wird ein Caching-Mechanismus verwendet, der durch die \texttt{CacheConfig}-Klasse und die dazugehörigen \texttt{VetsProperties} konfiguriert wird.
+
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth,keepaspectratio]{abbildungen/vets-service-class-diagram.png}}
+    \caption{Klassendiagramm für den Microservice \textit{spring-petclinic-vets-service}}
+    \label{fig:class-diagram}
+\end{figure}
+
+Das Sequenzdiagramm in Abbildung \ref{fig:sequence-diagram} illustriert den Ablauf einer GET-Anfrage an den Vets-Service. Es zeigt, wie eine Anfrage vom Client über das API-Gateway an den \texttt{VetResource} weitergeleitet wird. Der konfigurierte Cache-Mechanismus, gibt im Erfolgsfall direkt die gespeicherten Daten zurück. Bei einem Cache-Fehler wird die Anfrage an das \texttt{VetRepository} weitergeleitet, das zwei Datenbankabfragen ausführt: eine für die Tierärzte und eine für deren Spezialisierungen. Die zurückgegebenen Daten werden dann im Cache gespeichert und an den Client übermittelt, was die Effizienz des Services durch verminderte Datenbankzugriffe demonstriert.
+
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth,keepaspectratio]{abbildungen/vets-service-sequence-diagram.png}}
+    \caption{Sequenzdiagramm für den Microservice \textit{spring-petclinic-vets-service}}
+    \label{fig:sequence-diagram}
+\end{figure}
+
+
+
+\newpage
+\section{Fachliches Makro-Modell mit DDD}
+
+Die erstellte Context Map (siehe Abbildung \ref{fig:context-map}) visualisiert die verschiedenen fachlichen Domänen der Spring PetClinic als eigenständige Bounded Contexts.
+
+Der API Gateway Context interagiert mit den anderen Contexts nach dem Conformist-Muster, da er sich vollständig an die Datenmodelle der Fachdomänen anpasst. Im Gegensatz dazu nutzt der Visits Context einen Customer/Supplier-Ansatz gegenüber dem Customers Context, da er funktional von dem Datenmodell \textit{Pet} und deren IDs abhängig ist. Der GenAI Context verwendet ein Published Language-Muster, da hier ein standardisiertes, stabiles Interface für die Kommunikation notwendig ist, das unabhängig von internen Änderungen der Domänen-Modelle bleibt.
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth,keepaspectratio]{abbildungen/context-map.png}}
+    \caption{Context Map der PetClinic mit Bounded Contexts}
+    \label{fig:context-map}
+\end{figure}
+
+Basierend auf der Analyse des bestehenden Spring PetClinic-Systems schlagen wir die Einführung eines neuen Billing-Microservice vor. In der aktuellen Architektur gibt es keine dedizierte Komponente für die Abrechnung und Zahlungsverarbeitung, was für eine reale Tierklinik jedoch essenziell wäre.
+
+Der Billing Context nutzt ein Customer/Supplier-Muster sowohl mit dem Customers als auch mit dem Visits Context. Diese Wahl begründet sich aus der funktionalen Abhängigkeit - für Rechnungen werden Kunden- und Besuchsdaten benötigt, ohne dass der Billing Context diese Daten selbst verwalten sollte. Die Integration mit dem API Gateway erfolgt über eine Published Language, damit der API Gateway selbst keine zusätzlichen Anpassungen vornehmen muss.
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth]{abbildungen/billing-integration.png}}
+    \caption{Erweiterung durch einen neuen Bounded Context Billing durch einen neuen Microservice \textit{spring-petclinic-billing-service}.}
+    \label{fig:context-map-billing}
+\end{figure}
+
+\section{Entwurf und Implementierung des Billing-Service}
+
+Als Teil der praktischen Umsetzung wurde der vorgeschlagene Billing-Service implementiert und in die bestehende Microservices-Architektur integriert. Die Implementierung umfasst sowohl das Backend mit dem neuen Microservice als auch die Frontend-Komponenten zur Darstellung und Erstellung von Rechnungen.
+
+\subsection{Architektur des Billing-Service}
+
+Abbildung \ref{fig:billing-architecture} zeigt die Architektur des implementierten Billing-Service und dessen Integration in die bestehende Anwendung. Der Billing-Service kommuniziert über Feign-Clients mit dem Customers-Service und dem Visits-Service, um die notwendigen Daten für die Rechnungserstellung zu beziehen. Das Frontend interagiert über das API-Gateway mit dem Billing-Service, das die Bill-List-Komponente für die Anzeige von Rechnungen und die Bill-Form-Komponente für die Erstellung neuer Rechnungen bereitstellt.
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth]{abbildungen/billing-architecture.png}}
+    \caption{Architekturdiagramm des implementierten Billing-Service mit Integrationen zu anderen Microservices und Frontend-Komponenten.}
+    \label{fig:billing-architecture}
+\end{figure}
+
+\newpage
+\begin{thebibliography}{9}
+\bibitem{petclinic} \url{https://github.com/spring-petclinic/spring-petclinic-microservices}
+\bibitem{internetcomputing} Ali Sunyaev, \textit{Internet Computing}, Springer Verlag, 2024.
+\bibitem{vorlesung} Christian Zirpins, \textit{Verteilte Systeme}, Vorlesung an der Hochschule Karlsruhe für Master Informatik, Sommersemester 2025.
+   
+\end{thebibliography}
+
+\end{document}
+
+
+
+
+\begin{figure}[H]
+    \centering
+    \setlength{\fboxsep}{10pt}
+    \fbox{\includegraphics[width=1\textwidth]{abbildungen/billing-integration.png}}
+    \caption{Erweiterung durch einen neuen Bounded Context Billing durch einen neuen Microservice \textit{spring-petclinic-billing-service}.}
+    \label{fig:context-map-billing}
+\end{figure}
