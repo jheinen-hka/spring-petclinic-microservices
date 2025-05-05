@@ -30,9 +30,8 @@ public class BillController {
     }
 
     @PostMapping
-    public ResponseEntity<Bill> createBill(@RequestParam Long customerId,
-                                           @RequestParam Long visitId) {
-        Bill bill = billService.createBill(customerId, visitId);
+    public ResponseEntity<Bill> createBill(@RequestBody BillRequest request) {
+        Bill bill = billService.createBill(request.getCustomerId(), request.getVisitId());
         return ResponseEntity.created(URI.create("/bills/" + bill.getId())).body(bill);
     }
 

@@ -74,6 +74,15 @@ class VisitResource {
         final List<Visit> byPetIdIn = visitRepository.findByPetIdIn(petIds);
         return new Visits(byPetIdIn);
     }
+    
+    /**
+     * Read a single visit.
+     */
+    @GetMapping("/visits/{visitId}")
+    public Visit getVisit(@PathVariable("visitId") @Min(1) int visitId) {
+        return visitRepository.findById(visitId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Visit " + visitId + " not found"));
+    }
 
     record Visits(
         List<Visit> items

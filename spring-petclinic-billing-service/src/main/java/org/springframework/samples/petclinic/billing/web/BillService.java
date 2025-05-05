@@ -50,7 +50,9 @@ public class BillService {
         }
 
         try {
-            visit = visitClient.getVisitById(visitId);
+            // Convert Long visitId to Integer since Visit service uses Integer IDs
+            Integer visitIdAsInt = visitId.intValue();
+            visit = visitClient.getVisitById(visitIdAsInt);
         } catch (FeignException.NotFound e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Visit not found");
         } catch (FeignException e) {
