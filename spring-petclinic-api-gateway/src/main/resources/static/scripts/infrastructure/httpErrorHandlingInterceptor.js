@@ -8,9 +8,15 @@ angular.module('infrastructure')
         return {
             responseError: function (response) {
                 var error = response.data;
-                alert(error.error + "\r\n" + error.errors.map(function (e) {
-                    return e.field + ": " + e.defaultMessage;
-                }).join("\r\n"));
+                var errorMessage = error.error || 'An error occurred';
+                
+                if (error.errors && Array.isArray(error.errors)) {
+                    errorMessage += "\r\n" + error.errors.map(function (e) {
+                        return e.field + ": " + e.defaultMessage;
+                    }).join("\r\n");
+                }
+                
+                alert(errorMessage);
                 return response;
             }
         }

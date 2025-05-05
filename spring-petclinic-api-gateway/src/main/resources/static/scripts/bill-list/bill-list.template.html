@@ -1,0 +1,43 @@
+<h2>Bills</h2>
+
+<div ng-if="$ctrl.errorMessage && !$ctrl.isDemoData" class="alert alert-danger">
+    {{$ctrl.errorMessage}}
+</div>
+
+<div ng-if="$ctrl.isDemoData" class="alert alert-warning">
+    {{$ctrl.errorMessage}}
+</div>
+
+<form onsubmit="javascript:void(0)" style="max-width: 20em; margin-top: 2em;">
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search Filter" ng-model="$ctrl.query" />
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Customer Name</th>
+        <th>Visit Date</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Issue Date</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="bill in $ctrl.bills | filter:$ctrl.query track by bill.id">
+            <td>{{bill.id}}</td>
+            <td>{{bill.customerName}}</td>
+            <td>{{bill.visitDate | date:'yyyy-MM-dd'}}</td>
+            <td>{{bill.amount | currency}}</td>
+            <td>{{bill.status}}</td>
+            <td>{{bill.issueDate | date:'yyyy-MM-dd'}}</td>
+            <td>{{bill.description}}</td>
+        </tr>
+        <tr ng-if="$ctrl.bills && $ctrl.bills.length === 0">
+            <td colspan="7">No bills found.</td>
+        </tr>
+    </tbody>
+</table>
