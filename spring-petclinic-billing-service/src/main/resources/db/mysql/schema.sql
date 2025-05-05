@@ -14,8 +14,6 @@ CREATE TABLE IF NOT EXISTS bill (
     description VARCHAR(255),
     issue_date DATE,
     status VARCHAR(30),
-    FOREIGN KEY (customer_id) REFERENCES owners(id),
-    FOREIGN KEY (visit_id) REFERENCES visits(id)
     INDEX(customer_id),
     INDEX(visit_id),
     INDEX(issue_date)

@@ -37,7 +37,7 @@ public class BillService {
         return billRepository.findById(id);
     }
 
-    public Bill createBill(Long customerId, Long visitId, String description) {
+    public Bill createBill(Long customerId, Long visitId) {
         CustomerDto customer;
         VisitDto visit;
 
@@ -63,7 +63,7 @@ public class BillService {
         bill.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
         bill.setVisitDate(visit.getDate());
         bill.setAmount(visit.getPrice());
-        bill.setDescription(description);
+        bill.setDescription(visit.getDescription());
         bill.setIssueDate(LocalDate.now());
         bill.setStatus(BillStatus.OPEN);
 

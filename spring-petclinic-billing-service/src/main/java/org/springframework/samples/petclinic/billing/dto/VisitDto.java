@@ -7,6 +7,7 @@ public class VisitDto {
     private Long id;
     private LocalDate date;
     private BigDecimal price;
+    private String description;
 
     public LocalDate getDate() {
         return date;
@@ -22,5 +23,13 @@ public class VisitDto {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

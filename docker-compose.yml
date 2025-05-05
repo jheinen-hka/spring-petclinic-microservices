@@ -144,6 +144,10 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
+      customers-service:
+        condition: service_started
+      visits-service:
+        condition: service_started
       mysql:
         condition: service_started
     ports:
