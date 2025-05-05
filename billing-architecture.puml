@@ -1,0 +1,67 @@
+@startuml
+title Billing Feature - Spring PetClinic Microservices Architecture
+
+package "Frontend (Angular)" {
+  [Bill List Component] as BillList
+  [Bill Form Component] as BillForm
+}
+
+package "API Gateway" {
+  [Spring Cloud Gateway] as Gateway
+}
+
+package "Billing Service" {
+  [Bill Controller] as BillController
+  [Bill Service] as BillService
+  [Feign Clients] as FeignClients
+  database "Billing DB" as BillingDB
+}
+
+package "Customers Service" {
+  [Owner Resource] as OwnerResource
+  database "Customers DB" as CustomersDB
+}
+
+package "Visits Service" {
+  [Visit Resource] as VisitResource
+  [/visits/{id} Endpoint] as VisitEndpoint
+  database "Visits DB" as VisitsDB
+}
+
+package "Infrastructure" {
+  [Discovery Server] as Discovery
+  [Config Server] as Config
+}
+
+' Frontend to Gateway
+BillList --> Gateway : 1. GET /api/billing/bills
+BillForm --> Gateway : 2a. GET /api/customer/owners
+BillForm --> Gateway : 2b. GET /api/visit/pets/visits
+BillForm --> Gateway : 3. POST /api/billing/bills
+
+' Gateway to Services
+Gateway --> BillController : 4. Forward requests
+BillController --> BillService : 5. Process
+BillService --> BillingDB : 6. CRUD Operations
+
+' Service to Service Communication
+BillService --> FeignClients : 7. Client-side load balancing
+FeignClients --> Discovery : 8. Service lookup
+FeignClients --> OwnerResource : 9. GET owner data
+FeignClients --> VisitEndpoint : 10. GET visit data
+
+' Infrastructure connections
+BillController ..> Config : Configuration
+OwnerResource ..> Config : Configuration
+VisitResource ..> Config : Configuration
+
+BillController ..> Discovery : Service registration
+OwnerResource ..> Discovery : Service registration
+VisitResource ..> Discovery : Service registration
+
+' Database connections
+OwnerResource --> CustomersDB : CRUD Operations
+VisitResource --> VisitsDB : CRUD Operations
+VisitEndpoint --> VisitsDB : Read Operations
+
+@enduml
