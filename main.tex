@@ -28,7 +28,7 @@
 	{\scshape\Large Verteilte Systeme\par}
 	{\scshape\small INFM SS25\par}
 	\vspace{1.5cm}
-	{\huge\bfseries Labor 1 - Analyse und Entwurf\par}
+	{\huge\bfseries Labor-Report\par}
 	\vspace{2cm}
 	{\Large\itshape Bearbeitet von:\par}
 	{\Large\itshape Jakob Vogt - 78078\par}
@@ -36,7 +36,7 @@
 	\vfill
 	Betreuer\par
 	Prof. Dr. Christian Zirpins \\
-	M.Sc. Kevin Torner
+	Kevin Torner
 
 	\vfill
 
@@ -47,7 +47,9 @@
 \tableofcontents
 \newpage
 
-\section{Installation und Test}
+\section{Aufgabe 1}
+
+\subsection{Installation und Test}
 
 Für die Installation wurde über GitHub ein Fork des Repositories der PetClinic \cite{petclinic} erstellt und dieses lokal geklont. Nach Anleitung der README des Projektes konnten mit dem Befehl \lstinline|./mvnw clean install -P buildDocker| mit Hilfe von Docker einfach Images zu den Services generiert werden. Danach konnte das Projekt mit dem Befehl \lstinline|docker compose up| lokal gestartet werden. \\
 
@@ -100,7 +102,7 @@ Die Abbildungen \ref{fig:owners} und \ref{fig:register} zeigen weitere verschied
 \end{figure}
 
 \newpage
-\section{Analyse von Struktur und Verhalten}
+\subsection{Analyse von Struktur und Verhalten}
 
 Für die Strukturanalyse wurde der Microservice \textit{spring-petclinic-vets-service} ausgewählt und mittels eines UML-Klassendiagramms in Abbildung \ref{fig:class-diagram} visualisiert. Das Diagramm zeigt die zentrale Architektur des Services mit den Entitätsklassen \texttt{Vet} und \texttt{Specialty}, die in einer Many-zu-Many-Beziehung stehen. Der Zugriff auf die Daten erfolgt über das \texttt{VetRepository}-Interface, während die \texttt{VetResource}-Klasse als REST-Controller fungiert und unter dem Pfad \texttt{/vets} erreichbar ist. Es wird ein Caching-Mechanismus verwendet, der durch die \texttt{CacheConfig}-Klasse und die dazugehörigen \texttt{VetsProperties} konfiguriert wird.
 
@@ -127,7 +129,7 @@ Das Sequenzdiagramm in Abbildung \ref{fig:sequence-diagram} illustriert den Abla
 
 
 \newpage
-\section{Fachliches Makro-Modell mit DDD}
+\subsection{Fachliches Makro-Modell mit DDD}
 
 Die erstellte Context Map (siehe Abbildung \ref{fig:context-map}) visualisiert die verschiedenen fachlichen Domänen der Spring PetClinic als eigenständige Bounded Contexts.
 
@@ -153,11 +155,19 @@ Der Billing Context nutzt ein Customer/Supplier-Muster sowohl mit dem Customers 
     \label{fig:context-map-billing}
 \end{figure}
 
-\section{Entwurf und Implementierung des Billing-Service}
+\section{Aufgabe 2}
+
+GitHub Repositories:
+\begin{itemize}
+    \item Hauptrepository \cite{github-main}
+    \item Konfigurationsrepository \cite{github-config}
+\end{itemize}
+
+\subsection{Entwurf und Implementierung des Billing-Service}
 
 Als Teil der praktischen Umsetzung wurde der vorgeschlagene Billing-Service implementiert und in die bestehende Microservices-Architektur integriert. Die Implementierung umfasst sowohl das Backend mit dem neuen Microservice als auch die Frontend-Komponenten zur Darstellung und Erstellung von Rechnungen.
 
-\subsection{Architektur des Billing-Service}
+\subsubsection{Architektur des Billing-Service}
 
 Abbildung \ref{fig:billing-architecture} zeigt die Architektur des implementierten Billing-Service und dessen Integration in die bestehende Anwendung. Der Billing-Service kommuniziert über Feign-Clients mit dem Customers-Service und dem Visits-Service, um die notwendigen Daten für die Rechnungserstellung zu beziehen. Das Frontend interagiert über das API-Gateway mit dem Billing-Service, das die Bill-List-Komponente für die Anzeige von Rechnungen und die Bill-Form-Komponente für die Erstellung neuer Rechnungen bereitstellt.
 
@@ -174,6 +184,8 @@ Abbildung \ref{fig:billing-architecture} zeigt die Architektur des implementiert
 \bibitem{petclinic} \url{https://github.com/spring-petclinic/spring-petclinic-microservices}
 \bibitem{internetcomputing} Ali Sunyaev, \textit{Internet Computing}, Springer Verlag, 2024.
 \bibitem{vorlesung} Christian Zirpins, \textit{Verteilte Systeme}, Vorlesung an der Hochschule Karlsruhe für Master Informatik, Sommersemester 2025.
+\bibitem{github-main} \url{https://github.com/jheinen-hka/spring-petclinic-microservices}
+\bibitem{github-config} \url{https://github.com/jheinen-hka/spring-petclinic-microservices-config}
    
 \end{thebibliography}
 
