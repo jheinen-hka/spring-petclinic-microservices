@@ -1,0 +1,106 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: petclinic-config
+  namespace: spring-petclinic
+data:
+  application.yaml: |-
+    server:
+      shutdown: graceful
+      lifecycle:
+        timeout-per-shutdown-phase: 15
+      port: 8080
+      compression:
+        enabled: true
+        mime-types: application/json,text/css,application/javascript
+        min-response-size: 2048
+
+    # Logging
+    logging.level.org.springframework: INFO
+
+    # Metrics
+    management:
+      endpoint:
+        health:
+          probes:
+            enabled: true
+      health:
+        livenessState:
+          enabled: true
+        readinessState:
+          enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: '*'
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+
+    spring:
+      datasource:
+        schema: classpath*:db/mysql/schema.sql
+        data: classpath*:db/mysql/data.sql
+        platform: mysql
+        initialization-mode: always
+
+      jpa:
+        show-sql: true
+        hibernate:
+          ddl-auto: none
+          generate-ddl: false
+      
+      cloud:
+        kubernetes:
+          discovery:
+            enabled: true
+        loadbalancer:
+          ribbon:
+            enabled: false
+        gateway:
+          x-forwarded:  
+            enabled: true 
+            for-enabled: true 
+            proto-enabled: true 
+            host-append: false  
+            port-append: false  
+            proto-append: false
+          routes:
+            - id: vets-service
+              uri: http://vets-service.spring-petclinic.svc.cluster.local:8080
+              predicates:
+                - Path=/api/vet/**
+              filters:
+                - StripPrefix=2
+            - id: visits-service
+              uri: http://visits-service.spring-petclinic.svc.cluster.local:8080
+              predicates:
+                - Path=/api/visit/**
+              filters:
+                - StripPrefix=2
+            - id: customers-service
+              uri: http://customers-service.spring-petclinic.svc.cluster.local:8080
+              predicates:
+                - Path=/api/customer/**
+              filters:
+                - StripPrefix=2
+            - id: billing-service
+              uri: http://billing-service.spring-petclinic.svc.cluster.local:8080
+              predicates:
+                - Path=/api/billing/**
+              filters:
+                - StripPrefix=2
+            - id: genai-service
+              uri: http://genai-service.spring-petclinic.svc.cluster.local:8080
+              predicates:
+                - Path=/api/genai/**
+              filters:
+                - StripPrefix=2
+
+    # Service URLs for Feign clients (used by services to communicate)
+    customers-service-url: http://customers-service.spring-petclinic.svc.cluster.local:8080
+    visits-service-url: http://visits-service.spring-petclinic.svc.cluster.local:8080
+    vets-service-url: http://vets-service.spring-petclinic.svc.cluster.local:8080
+    billing-service-url: http://billing-service.spring-petclinic.svc.cluster.local:8080

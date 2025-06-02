@@ -1,0 +1,25 @@
+## MySQL common configuration for PetClinic services
+##
+auth:
+  ## @param auth.rootPassword Password for the `root` user
+  ##
+  rootPassword: petclinic
+
+  ## @param auth.username Name for a custom user to create
+  ##
+  username: petclinic
+
+  ## @param auth.password Password for the new user
+  ##
+  password: petclinic
+
+  ## @param auth.database Name for a custom database to create
+  ##
+  database: service_instance_db
+
+## Enable persistence using Persistent Volume Claims
+##
+primary:
+  persistence:
+    enabled: true
+    size: 1Gi
