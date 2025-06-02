@@ -1,48 +1,49 @@
 @startuml k8s-petclinic-architecture
-title Spring PetClinic Microservices - Kubernetes Architecture
+title Spring PetClinic Microservices - Kubernetes Architecture (Deployed)
 
-package "Kubernetes Cluster" {
+package "Minikube Cluster (minikube-petclinic)" {
     package "spring-petclinic namespace" {
         
-        component "LoadBalancer" as lb
-        component "API Gateway" as gw
-        component "Customers Service" as customers
-        component "Vets Service" as vets
-        component "Visits Service" as visits
-        component "Billing Service" as billing
-        component "GenAI Service" as genai
+        component "LoadBalancer\n:31428" as lb
+        component "API Gateway Pod\n(1/1 Running)" as gw
+        component "Customers Service Pod\n(1/1 Running)" as customers
+        component "Vets Service Pod\n(1/1 Running)" as vets
+        component "Visits Service Pod\n(1/1 Running)" as visits
+        component "Billing Service Pod\n(1/1 Running)" as billing
+        component "GenAI Service Pod\n(1/1 Running)" as genai
         
-        database "customers-db-mysql" as custdb
-        database "vets-db-mysql" as vetsdb
-        database "visits-db-mysql" as visitsdb
-        database "billing-db-mysql" as billdb
+        database "customers-db-mysql-0\n(StatefulSet)" as custdb
+        database "vets-db-mysql-0\n(StatefulSet)" as vetsdb
+        database "visits-db-mysql-0\n(StatefulSet)" as visitsdb
+        database "billing-db-mysql-0\n(StatefulSet)" as billdb
         
-        artifact "ConfigMap" as cm
+        artifact "ConfigMap\npetclinic-config" as cm
         
-        lb --> gw : "External Traffic"
-        gw --> customers : "k8s DNS"
-        gw --> vets : "k8s DNS"
-        gw --> visits : "k8s DNS"
-        gw --> billing : "k8s DNS"
-        gw --> genai : "k8s DNS"
+        lb --> gw : "http://127.0.0.1:50838"
+        gw --> customers : "customers-service:8080"
+        gw --> vets : "vets-service:8080"
+        gw --> visits : "visits-service:8080"
+        gw --> billing : "billing-service:8080"
+        gw --> genai : "genai-service:8080"
         
-        billing ..> customers : "Feign Client"
-        billing ..> visits : "Feign Client"
+        billing ..> customers : "Feign Client\n(k8s DNS)"
+        billing ..> visits : "Feign Client\n(k8s DNS)"
         
-        customers --> custdb
-        vets --> vetsdb
-        visits --> visitsdb
-        billing --> billdb
+        customers --> custdb : "Port 3306"
+        vets --> vetsdb : "Port 3306"
+        visits --> visitsdb : "Port 3306"
+        billing --> billdb : "Port 3306"
         
-        cm ..> gw
-        cm ..> customers
-        cm ..> vets
-        cm ..> visits
-        cm ..> billing
-        cm ..> genai
+        cm ..> gw : "mounted"
+        cm ..> customers : "mounted"
+        cm ..> vets : "mounted"
+        cm ..> visits : "mounted"
+        cm ..> billing : "mounted"
+        cm ..> genai : "mounted"
     }
 }
 
-note bottom : DNS Pattern: service-name.spring-petclinic.svc.cluster.local:8080
+note top : Successfully deployed with all services running
+note bottom : Images: springcommunity/spring-petclinic-*:latest
 
 @enduml

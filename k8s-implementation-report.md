@@ -242,21 +242,119 @@ Created automation scripts:
 - Deploys all microservices
 - Supports REPOSITORY_PREFIX environment variable
 
-## Current Status
+## Deployment Process
+
+### 9. Building Docker Images
+
+Used Maven with the buildDocker profile to create images:
+```bash
+./mvnw clean install -P buildDocker
+```
+
+This created images with the `springcommunity` prefix for all services, including our custom billing and genai services.
+
+### 10. Minikube Setup
+
+Created a dedicated Minikube profile for the project:
+```bash
+minikube start --memory=8192 --cpus=4 -p minikube-petclinic
+```
+
+### 11. Image Loading Strategy
+
+For custom services (billing and genai) not available in public registries:
+1. Built images locally with `springcommunity` prefix
+2. Loaded images into Minikube: `minikube image load <image> -p minikube-petclinic`
+3. Patched deployments to use `imagePullPolicy: Never` for local images
+
+### 12. Deployment Execution
+
+```bash
+# Set repository prefix
+export REPOSITORY_PREFIX=springcommunity
+
+# Deploy infrastructure
+./scripts/deployToKubernetes.sh
+
+# Setup databases
+./scripts/setupDatabases.sh
+```
+
+### 13. Challenges and Solutions
+
+#### Image Pull Issues
+- **Problem**: Custom services (billing, genai) failed with `ImagePullBackOff`
+- **Solution**: Loaded images into Minikube and set `imagePullPolicy: Never`
+```bash
+minikube image load springcommunity/spring-petclinic-billing-service:latest -p minikube-petclinic
+kubectl patch deployment billing-service -n spring-petclinic \
+  -p '{"spec":{"template":{"spec":{"containers":[{"name":"billing-service","imagePullPolicy":"Never"}]}}}}'
+```
+
+#### Registry Addon
+- **Attempted**: Minikube registry addon on port 50267
+- **Issue**: Connection timeouts
+- **Solution**: Direct image loading into Minikube was more reliable
+
+## Final Deployment Status
+
+✅ **All Services Running**:
+```bash
+NAME                                 READY   STATUS    AGE
+api-gateway-77486f74ff-vcj5t         1/1     Running   22m
+billing-db-mysql-0                   1/1     Running   24m
+billing-service-9776cd5d9-n289l      1/1     Running   62s
+customers-db-mysql-0                 1/1     Running   24m
+customers-service-5b75945964-xqqck   1/1     Running   22m
+genai-service-5bb987bc89-nx29f       1/1     Running   50s
+vets-db-mysql-0                      1/1     Running   24m
+vets-service-6b48f94f4b-m5z47        1/1     Running   22m
+visits-db-mysql-0                    1/1     Running   24m
+visits-service-54747b574-zgknv       1/1     Running   25m
+```
+
+✅ **Access URL**: 
+```bash
+minikube service api-gateway -n spring-petclinic --url -p minikube-petclinic
+# Returns: http://127.0.0.1:50838
+```
+
+## Architecture Verification
+
+All services communicate successfully using Kubernetes DNS:
+- Example: `customers-service.spring-petclinic.svc.cluster.local:8080`
+- Feign clients in billing service successfully call customers and visits services
+- API Gateway routes requests to all backend services
+- No Eureka server needed - replaced by k8s native service discovery
+
+## Lessons Learned
+
+1. **Image Management**: For local development, loading images directly into Minikube is simpler than using a registry
+2. **Profile Management**: Using Minikube profiles (`-p minikube-petclinic`) helps isolate different projects
+3. **Custom Services**: Services not in public registries require special handling with `imagePullPolicy`
+4. **Configuration**: ConfigMaps effectively replace Spring Cloud Config Server
+5. **Service Discovery**: Kubernetes DNS is simpler and more reliable than Eureka for k8s deployments
+6. **Database Secrets**: Helm automatically creates secrets for MySQL passwords
+
+## Deployment Timeline
+
+1. **Infrastructure Setup**: ~5 minutes (namespace, services, configmaps)
+2. **Database Deployment**: ~3 minutes (4 MySQL instances via Helm)
+3. **Service Deployment**: ~5 minutes (including image pulling)
+4. **Troubleshooting**: ~10 minutes (fixing custom service image issues)
+5. **Total Time**: ~25 minutes from start to fully running system
+
+## Next Steps
 
 ✅ **Completed**:
-1. Kubernetes resource structure created
-2. Service discovery migration from Eureka to k8s DNS
-3. Configuration management with ConfigMaps
-4. Database configuration with Helm
-5. API Gateway routing updated
-6. RBAC configuration
-7. Deployment manifests for all services
-8. Deployment automation scripts
+1. Full Kubernetes deployment with all services
+2. MySQL databases with persistent storage
+3. Service discovery via k8s DNS
+4. Successful inter-service communication
+5. Custom services (billing, genai) integrated
 
-🔄 **Next Steps**:
-1. Build Docker images for all services
-2. Deploy to Minikube for testing
-3. Implement scaling experiments
-4. Document self-healing behavior
-5. Performance testing and optimization
+🔄 **Remaining Tasks**:
+1. Scaling experiments (scale billing service to 3 pods)
+2. Self-healing demonstration (delete visits pod)
+3. Performance testing
+4. Create deployment README
