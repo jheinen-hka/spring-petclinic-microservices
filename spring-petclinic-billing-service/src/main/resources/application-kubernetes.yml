@@ -1,0 +1,46 @@
+spring:
+  config:
+    import: optional:configtree:/etc/config/
+  cloud:
+    kubernetes:
+      enabled: true
+      reload:
+        enabled: true
+    discovery:
+      enabled: false  # Disable Eureka
+  datasource:
+    url: jdbc:mysql://billing-db-mysql.spring-petclinic.svc.cluster.local:3306/service_instance_db?useSSL=false
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+
+eureka:
+  client:
+    enabled: false
+
+# Feign client URLs for Kubernetes
+customers-service:
+  ribbon:
+    listOfServers: customers-service.spring-petclinic.svc.cluster.local:8080
+
+visits-service:
+  ribbon:
+    listOfServers: visits-service.spring-petclinic.svc.cluster.local:8080
+
+# Alternative: Direct URL configuration for Feign
+feign:
+  client:
+    config:
+      customers-service:
+        url: http://customers-service.spring-petclinic.svc.cluster.local:8080
+      visits-service:
+        url: http://visits-service.spring-petclinic.svc.cluster.local:8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true

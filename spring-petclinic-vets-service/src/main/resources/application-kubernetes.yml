@@ -1,0 +1,28 @@
+spring:
+  config:
+    import: optional:configtree:/etc/config/
+  cloud:
+    kubernetes:
+      enabled: true
+      reload:
+        enabled: true
+    discovery:
+      enabled: false  # Disable Eureka
+  datasource:
+    url: jdbc:mysql://vets-db-mysql.spring-petclinic.svc.cluster.local:3306/service_instance_db?useSSL=false
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD}
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true

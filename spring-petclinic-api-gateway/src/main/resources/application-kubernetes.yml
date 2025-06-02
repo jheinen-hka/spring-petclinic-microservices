@@ -1,0 +1,67 @@
+spring:
+  config:
+    import: optional:configtree:/etc/config/
+  cloud:
+    kubernetes:
+      enabled: true
+      reload:
+        enabled: true
+    discovery:
+      enabled: false  # Disable Eureka
+    gateway:
+      default-filters:
+        - name: CircuitBreaker
+          args:
+            name: defaultCircuitBreaker
+            fallbackUri: forward:/fallback
+        - name: Retry
+          args:
+            retries: 1
+            statuses: SERVICE_UNAVAILABLE
+            methods: POST
+      routes:
+        - id: vets-service
+          uri: http://vets-service.spring-petclinic.svc.cluster.local:8080
+          predicates:
+            - Path=/api/vet/**
+          filters:
+            - StripPrefix=2
+        - id: visits-service
+          uri: http://visits-service.spring-petclinic.svc.cluster.local:8080
+          predicates:
+            - Path=/api/visit/**
+          filters:
+            - StripPrefix=2
+        - id: customers-service
+          uri: http://customers-service.spring-petclinic.svc.cluster.local:8080
+          predicates:
+            - Path=/api/customer/**
+          filters:
+            - StripPrefix=2
+        - id: genai-service
+          uri: http://genai-service.spring-petclinic.svc.cluster.local:8080
+          predicates:
+            - Path=/api/genai/**
+          filters:
+            - StripPrefix=2
+            - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
+        - id: billing-service
+          uri: http://billing-service.spring-petclinic.svc.cluster.local:8080
+          predicates:
+            - Path=/api/billing/**
+          filters:
+            - StripPrefix=2
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true

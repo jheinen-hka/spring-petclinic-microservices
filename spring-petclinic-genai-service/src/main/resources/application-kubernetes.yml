@@ -1,0 +1,24 @@
+spring:
+  config:
+    import: optional:configtree:/etc/config/
+  cloud:
+    kubernetes:
+      enabled: true
+      reload:
+        enabled: true
+    discovery:
+      enabled: false  # Disable Eureka
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      probes:
+        enabled: true
