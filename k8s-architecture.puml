@@ -1,0 +1,48 @@
+@startuml k8s-petclinic-architecture
+title Spring PetClinic Microservices - Kubernetes Architecture
+
+package "Kubernetes Cluster" {
+    package "spring-petclinic namespace" {
+        
+        component "LoadBalancer" as lb
+        component "API Gateway" as gw
+        component "Customers Service" as customers
+        component "Vets Service" as vets
+        component "Visits Service" as visits
+        component "Billing Service" as billing
+        component "GenAI Service" as genai
+        
+        database "customers-db-mysql" as custdb
+        database "vets-db-mysql" as vetsdb
+        database "visits-db-mysql" as visitsdb
+        database "billing-db-mysql" as billdb
+        
+        artifact "ConfigMap" as cm
+        
+        lb --> gw : "External Traffic"
+        gw --> customers : "k8s DNS"
+        gw --> vets : "k8s DNS"
+        gw --> visits : "k8s DNS"
+        gw --> billing : "k8s DNS"
+        gw --> genai : "k8s DNS"
+        
+        billing ..> customers : "Feign Client"
+        billing ..> visits : "Feign Client"
+        
+        customers --> custdb
+        vets --> vetsdb
+        visits --> visitsdb
+        billing --> billdb
+        
+        cm ..> gw
+        cm ..> customers
+        cm ..> vets
+        cm ..> visits
+        cm ..> billing
+        cm ..> genai
+    }
+}
+
+note bottom : DNS Pattern: service-name.spring-petclinic.svc.cluster.local:8080
+
+@enduml
